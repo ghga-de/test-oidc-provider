@@ -18,9 +18,11 @@
 from ghga_service_commons.api import ApiConfigBase
 from hexkit.config import config_from_yaml
 
+from top.core.oidc_provider import OidcProviderConfig
+
 
 @config_from_yaml(prefix="top")
-class Config(ApiConfigBase):
+class Config(ApiConfigBase, OidcProviderConfig):
     """Config parameters and their defaults."""
 
     service_name: str = "top"

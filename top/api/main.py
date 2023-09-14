@@ -13,22 +13,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Module containing the main FastAPI router and (optionally) top-level API enpoints.
-Additional endpoints might be structured in dedicated modules
-(each of them having a sub-router).
-"""
+"""Module containing the main FastAPI router and API endpoints."""
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from ghga_service_commons.api import configure_app
 
 from ..config import CONFIG
+from ..core.models import UserInfo
+from ..core.oidc_provider import OidcProvider
 
 app = FastAPI()
 configure_app(app, config=CONFIG)
 
+oidc_provider = OidcProvider(CONFIG)
 
-@app.get("/", summary="Greet the world")
-async def index():
-    """Greet the World"""
-    return "Hello World."
+tags = ["TestOP"]
+
+
+@app.get(
+    "/health",
+    summary="health",
+    tags=tags,  # pyright: ignore
+    status_code=200,
+)
+async def health():
+    """Used to test if this service is alive"""
+    return {"status": "OK"}
+
+
+@app.get(
+    "/userinfo",
+    summary="Get user information",
+    tags=tags,  # pyright: ignore
+    status_code=200,
+)
+async def get_userinfo(
+    credentials: HTTPAuthorizationCredentials = Security(HTTPBearer()),
+) -> UserInfo:
+    """The UserInfo endpoint of the test OP."""
+    token = credentials.credentials
+    try:
+        return oidc_provider.get_user_info(token)
+    except KeyError as error:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+        ) from error

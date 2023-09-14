@@ -12,10 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
 
-"""Test dummy."""
+"""Models used by the API"""
+
+from pydantic import BaseModel, Field
+
+__all__ = ["UserInfo"]
 
 
-def test_dummy():
-    """Just makes the CI pass."""
-    assert True
+class UserInfo(BaseModel):
+    """Data that is returned by the UserInfo endpoint."""
+
+    sub: str = Field(..., description="subject identifier")
+    email: str = Field(..., description="e-mail address of the user")
+    name: str = Field(..., description="the full name of the user")
