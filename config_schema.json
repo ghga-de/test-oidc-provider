@@ -178,10 +178,23 @@
     },
     "service_name": {
       "title": "Service Name",
+      "description": "Short name of this service",
       "default": "top",
       "env_names": [
         "top_service_name"
       ],
+      "type": "string"
+    },
+    "service_url": {
+      "title": "Service Url",
+      "description": "External base URL of this service",
+      "default": "https://top",
+      "env_names": [
+        "top_service_url"
+      ],
+      "minLength": 1,
+      "maxLength": 65536,
+      "format": "uri",
       "type": "string"
     }
   },

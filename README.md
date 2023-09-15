@@ -88,7 +88,9 @@ The service requires the following configuration parameters:
 
   - **Items** *(string)*
 
-- **`service_name`** *(string)*: Default: `top`.
+- **`service_name`** *(string)*: Short name of this service. Default: `top`.
+
+- **`service_url`** *(string)*: External base URL of this service. Default: `https://top`.
 
 
 ### Usage:
