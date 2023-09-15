@@ -272,7 +272,7 @@ async def test_more_expiring_tasks():
     provider = OidcProvider(config)
 
     def create_token(name: str, short=False) -> str:
-        valid_seconds = 0.1 if short else None  # type: ignore
+        valid_seconds = 0.1 if short else None
         login = LoginInfo(name=name, valid_seconds=valid_seconds)  # pyright: ignore
         return provider.login(login)
 
