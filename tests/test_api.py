@@ -21,6 +21,7 @@ from ghga_service_commons.api.testing import AsyncTestClient
 from pytest import mark
 from pytest_asyncio import fixture as async_fixture
 
+from top import __version__
 from top.api.main import app, oidc_provider
 
 
@@ -45,6 +46,26 @@ async def test_health_check(client: AsyncTestClient):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {"status": "OK"}
+
+
+@mark.asyncio
+async def test_openid_configuration(client: AsyncTestClient):
+    """Test getting the OpenID configuration from the well-known path."""
+
+    response = await client.get("/.well-known/openid-configuration")
+
+    openid_config = response.json()
+    print(openid_config)
+    assert openid_config == {
+        "version": __version__,
+        "issuer": "https://test-op.org",
+        "scopes_supported": ["openid", "profile", "email"],
+        "claims_supported": ["sub", "name", "email"],
+        "request_object_signing_alg_values_supported": ["ES512"],
+        "userinfo_signing_alg_values_supported": ["ES512"],
+        "userinfo_endpoint": "http://localhost:8080//userinfo",
+        "service_documentation": "https://github.com/ghga-de/test-oidc-provider",
+    }
 
 
 @mark.asyncio

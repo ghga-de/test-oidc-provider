@@ -20,7 +20,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from ghga_service_commons.api import configure_app
 
 from ..config import CONFIG
-from ..core.models import LoginInfo, UserInfo
+from ..core.models import LoginInfo, OidcConfiguration, UserInfo
 from ..core.oidc_provider import OidcProvider
 
 app = FastAPI()
@@ -35,11 +35,27 @@ tags = ["TestOP"]
     "/health",
     summary="health",
     tags=tags,  # pyright: ignore
-    status_code=200,
+    status_code=status.HTTP_200_OK,
 )
 async def health():
     """Used to test if this service is alive"""
     return {"status": "OK"}
+
+
+@app.get(
+    "/.well-known/openid-configuration",
+    summary="Get the OpenID connect configuration",
+    tags=tags,  # pyright: ignore
+    status_code=status.HTTP_200_OK,
+)
+async def get_openid_configuration() -> OidcConfiguration:
+    """The OpenID discovery endpoint."""
+    userinfo_endpoint = "/".join(
+        (CONFIG.service_url.rstrip("/"), CONFIG.api_root_path.strip("/"), "userinfo")
+    )
+    return OidcConfiguration(
+        userinfo_endpoint=userinfo_endpoint, issuer=CONFIG.issuer
+    )  # pyright: ignore
 
 
 @app.post(
@@ -58,7 +74,7 @@ async def health():
     },
 )
 async def login(login_info: LoginInfo) -> Response:
-    """The UserInfo endpoint of the test OP."""
+    """Endpoint for logging in to the OP as a test user."""
     try:
         token = oidc_provider.login(login_info)
     except (TypeError, ValueError) as error:
