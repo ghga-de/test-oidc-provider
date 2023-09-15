@@ -15,6 +15,9 @@
 
 """Module containing the main FastAPI router and API endpoints."""
 
+from enum import Enum
+from typing import Union
+
 from fastapi import FastAPI, HTTPException, Response, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from ghga_service_commons.api import configure_app
@@ -28,7 +31,7 @@ configure_app(app, config=CONFIG)
 
 oidc_provider = OidcProvider(CONFIG)
 
-tags = ["TestOP"]
+tags: list[Union[str, Enum]] = ["TestOP"]
 
 
 @app.get(
