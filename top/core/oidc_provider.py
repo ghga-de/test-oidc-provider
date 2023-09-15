@@ -140,12 +140,13 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
         valid_seconds = login_info.valid_seconds
         if valid_seconds is None:
             valid_seconds = self.valid_seconds
-        email = str(login_info.email)
-        if email is None:
+        if login_info.email is None:
             email = (
                 name.lower().replace(" ", ".").replace("..", ".")
                 + f"@{self.user_domain}"
             )
+        else:
+            email = str(login_info.email)
         sub = login_info.sub
         if not sub:
             user_id = "id-of-" + name.lower().replace(" ", "-")
