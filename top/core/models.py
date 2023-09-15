@@ -16,14 +16,27 @@
 
 """Models used by the API"""
 
-from pydantic import BaseModel, Field
+from typing import Optional, Union
 
-__all__ = ["UserInfo"]
+from pydantic import BaseModel, EmailStr, Field, PositiveFloat, PositiveInt
+
+__all__ = ["LoginInfo", "UserInfo"]
+
+
+class LoginInfo(BaseModel):
+    """Data that is used to login as a user."""
+
+    sub: Optional[str] = Field(None, description="subject identifier")
+    email: Optional[EmailStr] = Field(None, description="e-mail address of the user")
+    name: str = Field(..., description="the full name of the user")
+    valid_seconds: Optional[Union[PositiveInt, PositiveFloat]] = Field(
+        None, description="seconds until the login expires"
+    )
 
 
 class UserInfo(BaseModel):
     """Data that is returned by the UserInfo endpoint."""
 
     sub: str = Field(..., description="subject identifier")
-    email: str = Field(..., description="e-mail address of the user")
+    email: EmailStr = Field(..., description="e-mail address of the user")
     name: str = Field(..., description="the full name of the user")

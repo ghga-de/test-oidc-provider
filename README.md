@@ -50,6 +50,14 @@ top --help
 ### Parameters
 
 The service requires the following configuration parameters:
+- **`issuer`** *(string)*: test issuer URL. Default: `https://test-op.org`.
+
+- **`user_domain`** *(string)*: domain name of the home organization of the test users. Default: `home.org`.
+
+- **`client_id`** *(string)*: test client ID. Default: `test-client`.
+
+- **`valid_seconds`** *(integer)*: default expiration time of access tokens in seconds. Default: `3600`.
+
 - **`host`** *(string)*: IP of the host. Default: `127.0.0.1`.
 
 - **`port`** *(integer)*: Port to expose the server on the specified host. Default: `8080`.

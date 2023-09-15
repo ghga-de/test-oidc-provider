@@ -1,16 +1,117 @@
+components:
+  schemas:
+    LoginInfo:
+      description: Data that is used to login as a user.
+      properties:
+        email:
+          description: e-mail address of the user
+          format: email
+          title: Email
+          type: string
+        name:
+          description: the full name of the user
+          title: Name
+          type: string
+        sub:
+          description: subject identifier
+          title: Sub
+          type: string
+        valid_seconds:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: integer
+          - exclusiveMinimum: 0.0
+            type: number
+          description: seconds until the login expires
+          title: Valid Seconds
+      required:
+      - name
+      title: LoginInfo
+      type: object
+    UserInfo:
+      description: Data that is returned by the UserInfo endpoint.
+      properties:
+        email:
+          description: e-mail address of the user
+          format: email
+          title: Email
+          type: string
+        name:
+          description: the full name of the user
+          title: Name
+          type: string
+        sub:
+          description: subject identifier
+          title: Sub
+          type: string
+      required:
+      - sub
+      - email
+      - name
+      title: UserInfo
+      type: object
+  securitySchemes:
+    HTTPBearer:
+      scheme: bearer
+      type: http
 info:
   title: FastAPI
   version: 0.1.0
 openapi: 3.0.2
 paths:
-  /:
+  /health:
     get:
-      description: Greet the World
-      operationId: index__get
+      description: Used to test if this service is alive
+      operationId: health_health_get
       responses:
         '200':
           content:
             application/json:
               schema: {}
           description: Successful Response
-      summary: Greet the world
+      summary: health
+      tags:
+      - TestOP
+  /login:
+    post:
+      description: The UserInfo endpoint of the test OP.
+      operationId: login_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInfo'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                title: Response 201 Login Login Post
+                type: string
+          description: Access token has been created.
+        '422':
+          description: Validation error in submitted data.
+      summary: Log in as a test user
+      tags:
+      - TestOP
+  /userinfo:
+    get:
+      description: The UserInfo endpoint of the test OP.
+      operationId: get_userinfo_userinfo_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+          description: User info has been fetched.
+        '403':
+          description: Not authorized to get user info.
+        '422':
+          description: Validation error in submitted data.
+      security:
+      - HTTPBearer: []
+      summary: Get user information
+      tags:
+      - TestOP

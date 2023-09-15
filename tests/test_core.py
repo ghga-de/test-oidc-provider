@@ -21,7 +21,7 @@ import asyncio
 from ghga_service_commons.utils.utc_dates import now_as_utc
 from pytest import mark, raises
 
-from top.core.models import UserInfo
+from top.core.models import LoginInfo, UserInfo
 from top.core.oidc_provider import OidcProvider, OidcProviderConfig
 
 
@@ -35,7 +35,7 @@ def test_create_default_op():
     assert provider.client_id == "test-client"
     assert provider.valid_seconds == 60 * 60
     assert not provider.users
-    assert provider.next_jti == "test-1"
+    assert provider.serial_id == 1
 
 
 def test_create_custom_op():
@@ -53,7 +53,7 @@ def test_create_custom_op():
     assert provider.client_id == "GHGA-Client"
     assert provider.valid_seconds == 90 * 60
     assert not provider.users
-    assert provider.next_jti == "test-1"
+    assert provider.serial_id == 1
 
 
 def test_invalid_token():
@@ -61,7 +61,7 @@ def test_invalid_token():
     config = OidcProviderConfig()  # pyright: ignore
     provider = OidcProvider(config)
     with raises(KeyError):
-        provider.get_user_info("bad")
+        provider.user_info("bad")
 
 
 @mark.asyncio
@@ -70,10 +70,11 @@ async def test_user_info_for_default_token():
     config = OidcProviderConfig()  # pyright: ignore
     provider = OidcProvider(config)
 
-    token = provider.create_access_token("John Doe")
+    login = LoginInfo(name="John Doe")  # pyright: ignore
+    token = provider.login(login)
     assert isinstance(token, str)
     assert len(provider.users) == 1
-    user = provider.get_user_info(token)
+    user = provider.user_info(token)
     assert user.name == "John Doe"
     assert user.email == "john.doe@home.org"
     assert user.sub == "id-of-john-doe@test-op.org"
@@ -84,7 +85,7 @@ async def test_user_info_for_default_token():
     assert not provider.tasks
 
     with raises(KeyError):
-        provider.get_user_info(token)
+        provider.user_info(token)
 
 
 @mark.asyncio
@@ -93,12 +94,16 @@ async def test_user_info_for_custom_token():
     config = OidcProviderConfig()  # pyright: ignore
     provider = OidcProvider(config)
 
-    token = provider.create_access_token(
-        "Dr. Jane Roe", email="jane@foo.edu", sub="sub-of-jane"
+    login = LoginInfo(
+        name="Dr. Jane Roe",
+        email="jane@foo.edu",  # pyright: ignore
+        sub="sub-of-jane",
+        valid_seconds=30,
     )
+    token = provider.login(login)
     assert isinstance(token, str)
     assert len(provider.users) == 1
-    user = provider.get_user_info(token)
+    user = provider.user_info(token)
     assert isinstance(user, UserInfo)
     assert user.name == "Dr. Jane Roe"
     assert user.email == "jane@foo.edu"
@@ -110,7 +115,7 @@ async def test_user_info_for_custom_token():
     assert not provider.tasks
 
     with raises(KeyError):
-        provider.get_user_info(token)
+        provider.user_info(token)
 
 
 @mark.asyncio
@@ -124,10 +129,11 @@ async def test_user_info_for_default_token_of_custom_op():
     )
     provider = OidcProvider(config)
 
-    token = provider.create_access_token("Frank Foo")
+    login = LoginInfo(name="Frank Foo")  # pyright: ignore
+    token = provider.login(login)
     assert isinstance(token, str)
     assert len(provider.users) == 1
-    user = provider.get_user_info(token)
+    user = provider.user_info(token)
     assert isinstance(user, UserInfo)
     assert user.name == "Frank Foo"
     assert user.email == "frank.foo@dkfz.de"
@@ -145,15 +151,17 @@ async def test_user_infos_for_two_default_tokens():
     config = OidcProviderConfig()  # pyright: ignore
     provider = OidcProvider(config)
 
-    token1 = provider.create_access_token("John Doe")
-    token2 = provider.create_access_token("Dr. Jane Roe")
+    login = LoginInfo(name="John Doe")  # pyright: ignore
+    token1 = provider.login(login)
+    login = LoginInfo(name="Dr. Jane Roe")  # pyright: ignore
+    token2 = provider.login(login)
     assert token1 != token2
     assert len(provider.users) == 2
-    user1 = provider.get_user_info(token1)
+    user1 = provider.user_info(token1)
     assert user1.name == "John Doe"
-    user2 = provider.get_user_info(token2)
+    user2 = provider.user_info(token2)
     assert user2.name == "Dr. Jane Roe"
-    assert provider.next_jti == "test-3"
+    assert provider.serial_id == 3
 
     assert len(provider.tasks) == 2
     await provider.reset()
@@ -167,7 +175,8 @@ async def test_validate_default_tokens():
     config = OidcProviderConfig()  # pyright: ignore
     provider = OidcProvider(config)
 
-    token = provider.create_access_token("John Doe")
+    login = LoginInfo(name="John Doe")  # pyright: ignore
+    token = provider.login(login)
     claims = provider.decode_and_validate_token(token)
     assert isinstance(claims, dict)
     keys = " ".join(sorted(claims))
@@ -188,9 +197,13 @@ async def test_validate_default_tokens():
     now = now_as_utc().timestamp()
     assert 0 <= now - iat < 5
 
-    token = provider.create_access_token(
-        "Dr. Jane Roe", email="jane@foo.edu", sub="sub-of-jane", valid_seconds=30
+    login = LoginInfo(
+        name="Dr. Jane Roe",
+        email="jane@foo.edu",  # pyright: ignore
+        sub="sub-of-jane",
+        valid_seconds=30,
     )
+    token = provider.login(login)
     claims = provider.decode_and_validate_token(token)
     assert isinstance(claims, dict)
     keys = " ".join(sorted(claims))
@@ -223,25 +236,25 @@ async def test_expiration():
     config = OidcProviderConfig()  # pyright: ignore
     provider = OidcProvider(config)
 
-    token1 = provider.create_access_token("Long John Silver")
+    login = LoginInfo(name="Long John Silver")  # pyright: ignore
+    token1 = provider.login(login)
 
-    user1 = provider.get_user_info(token1)
+    user1 = provider.user_info(token1)
     assert user1.name == "Long John Silver"
 
-    token2 = provider.create_access_token(
-        "Short John Silver", valid_seconds=0.1  # type: ignore
-    )
+    login = LoginInfo(name="Short John Silver", valid_seconds=0.1)  # pyright: ignore
+    token2 = provider.login(login)
 
-    user2 = provider.get_user_info(token2)
+    user2 = provider.user_info(token2)
     assert user2.name == "Short John Silver"
 
     await asyncio.sleep(0.15)
 
-    user1 = provider.get_user_info(token1)
+    user1 = provider.user_info(token1)
     assert user1.name == "Long John Silver"
 
     with raises(KeyError):
-        provider.get_user_info(token2)
+        provider.user_info(token2)
 
     assert len(provider.tasks) == 1
     await provider.reset()
@@ -249,7 +262,7 @@ async def test_expiration():
     assert not provider.tasks
 
     with raises(KeyError):
-        provider.get_user_info(token1)
+        provider.user_info(token1)
 
 
 @mark.asyncio
@@ -258,12 +271,15 @@ async def test_more_expiring_tasks():
     config = OidcProviderConfig()  # pyright: ignore
     provider = OidcProvider(config)
 
-    create_token = provider.create_access_token
+    def create_token(name: str, short=False) -> str:
+        valid_seconds = 0.1 if short else None  # type: ignore
+        login = LoginInfo(name=name, valid_seconds=valid_seconds)  # pyright: ignore
+        return provider.login(login)
 
     tokens = [
         (
             create_token(f"Long John Silver {i}"),
-            create_token(f"Short John Silver {i}", valid_seconds=0.1),  # type: ignore
+            create_token(f"Short John Silver {i}", short=True),
         )
         for i in range(10)
     ]
@@ -271,9 +287,9 @@ async def test_more_expiring_tasks():
     await asyncio.sleep(0.15)
 
     for long_token, short_tokens in tokens:
-        assert provider.get_user_info(long_token).name.startswith("Long")
+        assert provider.user_info(long_token).name.startswith("Long")
         with raises(KeyError):
-            provider.get_user_info(short_tokens)
+            provider.user_info(short_tokens)
 
     assert len(provider.tasks) == 10
     await provider.reset()
@@ -282,6 +298,6 @@ async def test_more_expiring_tasks():
 
     for long_token, short_tokens in tokens:
         with raises(KeyError):
-            assert provider.get_user_info(long_token)
+            assert provider.user_info(long_token)
         with raises(KeyError):
-            provider.get_user_info(short_tokens)
+            provider.user_info(short_tokens)

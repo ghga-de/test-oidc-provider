@@ -16,10 +16,8 @@
 
 """Test OpenID Connect provider"""
 
-from __future__ import annotations
-
 import asyncio
-from typing import Any
+from typing import Any, Union
 
 from ghga_service_commons.utils.jwt_helpers import (
     decode_and_validate_token,
@@ -27,9 +25,9 @@ from ghga_service_commons.utils.jwt_helpers import (
     sign_and_serialize_token,
 )
 from jwcrypto import jwk
-from pydantic import AnyHttpUrl, BaseSettings, Field
+from pydantic import AnyHttpUrl, BaseSettings, Field, PositiveInt
 
-from .models import UserInfo
+from .models import LoginInfo, UserInfo
 
 __all__ = ["OidcProviderConfig", "OidcProvider"]
 
@@ -42,7 +40,7 @@ class OidcProviderConfig(BaseSettings):
         "home.org", description="domain name of the home organization of the test users"
     )
     client_id: str = Field("test-client", description="test client ID")
-    valid_seconds: int = Field(
+    valid_seconds: PositiveInt = Field(
         60 * 60, description="default expiration time of access tokens in seconds"
     )
 
@@ -74,12 +72,12 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
         self.valid_seconds = config.valid_seconds
         self.user_domain = user_domain
         self.client_id = config.client_id
-        self.generate_keys()
+        self._generate_keys()
         self.users = {}
         self.serial_id = 1
         self.tasks = set()
 
-    async def cancel_tasks(self):
+    async def _cancel_tasks(self):
         """Cleanup all pending tasks."""
         tasks = self.tasks
         while tasks:
@@ -93,16 +91,16 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
 
     async def reset(self):
         """Reset the OP, clear all data."""
-        await self.cancel_tasks()
+        await self._cancel_tasks()
         self.users.clear()
         self.serial_id = 1
 
-    def add_user(self, token: str, user: UserInfo) -> None:
+    def _add_user(self, token: str, user: UserInfo) -> None:
         """Add the given user to the cache."""
         self.users[token] = user
         self.serial_id += 1
 
-    def generate_keys(self) -> None:
+    def _generate_keys(self) -> None:
         """Generate a key set with a key pair for signing the tokens."""
         key = generate_jwk()  # generates EC keys
         key["kid"] = "test"
@@ -118,15 +116,10 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
             raise KeyError("Cannot retrieve the signing key.")
         return key
 
-    @property
-    def next_jti(self):
-        """Determine the next jti value."""
-        return f"test-{len(self.users) + 1}"
-
-    def add_cleanup_task(self, token: str, valid_seconds: int) -> None:
+    def _add_cleanup_task(self, token: str, valid_seconds: Union[int, float]) -> None:
         """Add a task to remove the token in the cache after the given time."""
 
-        async def cleanup_task(token: str, valid_seconds: int) -> None:
+        async def cleanup_task(token: str, valid_seconds: Union[int, float]) -> None:
             """Remove the given token in the cache after the given time."""
             await asyncio.sleep(valid_seconds)
             if token in self.users:
@@ -136,32 +129,28 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
         task = asyncio.create_task(cleanup_task(token, valid_seconds))
         self.tasks.add(task)
 
-    def create_access_token(
-        self,
-        name: str,
-        email: str | None = None,
-        sub: str | None = None,
-        valid_seconds: int | None = None,
-    ) -> str:
-        """Create and cache an access token for a given user.
+    def login(self, login_info: LoginInfo) -> str:
+        """Login as a user and cache an access token for authorization.
 
         If no subject identifier is passed, it is derived from the user name.
+
+        Returns an access token that can be used to fetch the user info.
         """
-        if not name:
-            raise ValueError("The name of the user must be specified.")
+        name = login_info.name
+        valid_seconds = login_info.valid_seconds
         if valid_seconds is None:
             valid_seconds = self.valid_seconds
-        if not valid_seconds or valid_seconds < 0:
-            raise ValueError("The expiration time is invalid.")
-        if email:
-            if "@" not in email:
-                raise ValueError("The email address of the user is invalid.")
-        else:
-            email = name.lower().replace(" ", ".") + f"@{self.user_domain}"
+        email = login_info.email
+        if email is None:
+            email = (
+                name.lower().replace(" ", ".").replace("..", ".")
+                + f"@{self.user_domain}"
+            )
+        sub = login_info.sub
         if not sub:
             user_id = "id-of-" + name.lower().replace(" ", "-")
             sub = f"{user_id}@{self.op_domain}"
-        user = UserInfo(sub=sub, email=email, name=name)
+        user = UserInfo(sub=sub, email=email, name=name)  # pyright: ignore
         jti = f"test-{self.serial_id}"
         claims = {
             "jti": jti,
@@ -174,13 +163,13 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
             "aud": [self.client_id],
         }
         token = sign_and_serialize_token(
-            claims, key=self.key, valid_seconds=valid_seconds
+            claims, key=self.key, valid_seconds=valid_seconds  # pyright: ignore
         )
-        self.add_user(token, user)
-        self.add_cleanup_task(token, valid_seconds)
+        self._add_user(token, user)
+        self._add_cleanup_task(token, valid_seconds)
         return token
 
-    def get_user_info(self, token: str) -> UserInfo:
+    def user_info(self, token: str) -> UserInfo:
         """Return the user info associated with the given access token.
 
         Raises a KeyError if no user info is associated with the given token.
