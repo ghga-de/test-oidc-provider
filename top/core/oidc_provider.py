@@ -125,7 +125,7 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
     @property
     def jwks(self) -> Jwks:
         """Get the public key set."""
-        return self.key_set.export(private_keys=False, as_dict=True)  # type: ignore
+        return self.key_set.export(private_keys=False, as_dict=True)  # pyright: ignore
 
     def _add_cleanup_task(self, token: str, valid_seconds: Union[int, float]) -> None:
         """Add a task to remove the token in the cache after the given time."""
