@@ -50,7 +50,7 @@ top --help
 ### Parameters
 
 The service requires the following configuration parameters:
-- **`issuer`** *(string)*: test issuer URL. Default: `https://test-op.org`.
+- **`issuer`** *(string)*: test issuer URL. Default: `https://op.test`.
 
 - **`user_domain`** *(string)*: domain name of the home organization of the test users. Default: `home.org`.
 

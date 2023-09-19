@@ -42,7 +42,7 @@ components:
           title: Claims Supported
           type: array
         issuer:
-          default: https://test-op.org
+          default: https://op.test
           description: URL that the OP asserts as its Issuer Identifier
           format: uri
           maxLength: 65536
