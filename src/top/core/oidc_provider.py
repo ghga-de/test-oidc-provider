@@ -162,7 +162,7 @@ class OidcProvider:  # pylint: disable=too-many-instance-attributes
             user_name = name.lower().replace(" ", "-")
             user_id = f"id-of-{user_name}"
             sub = f"{user_id}@{self.op_domain}"
-        user = UserInfo(sub=sub, email=email, name=name)  # pyright: ignore
+        user = UserInfo(sub=sub, email=email, name=name)  # type: ignore
         jti = f"test-{self.serial_id}"
         claims = {
             "jti": jti,

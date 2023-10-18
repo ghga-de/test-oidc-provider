@@ -63,7 +63,7 @@ async def get_openid_configuration() -> OidcConfiguration:
         userinfo_endpoint=userinfo_endpoint,
         issuer=CONFIG.issuer,
         jwks_uri=jwks_uri,
-    )  # pyright: ignore
+    )  # type: ignore
 
 
 @app.get(

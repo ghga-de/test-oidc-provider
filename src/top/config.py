@@ -35,4 +35,4 @@ class Config(ApiConfigBase, OidcProviderConfig):
     )
 
 
-CONFIG = Config()  # pyright: ignore
+CONFIG = Config()  # type: ignore
