@@ -15,4 +15,6 @@
 
 """Test OpenID Connect provider"""
 
-__version__ = "0.2.1"
+from importlib.metadata import version
+
+__version__ = version(__package__)
