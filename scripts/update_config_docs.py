@@ -86,7 +86,7 @@ def get_example() -> str:
     normalized_config_dict = json.loads(
         config.json()  # change eventually to .model_dump_json()
     )
-    return yaml.dump(normalized_config_dict)  # pyright: ignore
+    return yaml.dump(normalized_config_dict)
 
 
 def update_docs():
