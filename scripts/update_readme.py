@@ -180,8 +180,8 @@ def get_package_details() -> PackageDetails:
     description = read_package_description()
     config_description = generate_config_docs()
     return PackageDetails(
-        **header.model_dump(),
-        **name.model_dump(),
+        **header.dict(),
+        **name.dict(),
         description=description,
         config_description=config_description,
         design_description=read_design_description(),
@@ -195,7 +195,7 @@ def generate_single_readme(*, details: PackageDetails) -> str:
 
     template_content = README_TEMPLATE_PATH.read_text()
     template = Template(template_content)
-    return template.substitute(details.model_dump())
+    return template.substitute(details.dict())
 
 
 def main(check: bool = False) -> None:
