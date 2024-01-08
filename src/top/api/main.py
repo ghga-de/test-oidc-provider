@@ -17,7 +17,7 @@
 
 import logging
 from enum import Enum
-from typing import Union
+from typing import Annotated, Union
 
 from fastapi import FastAPI, HTTPException, Response, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -67,7 +67,7 @@ async def get_openid_configuration() -> OidcConfiguration:
         userinfo_endpoint=userinfo_endpoint,
         issuer=CONFIG.issuer,
         jwks_uri=jwks_uri,
-    )  # type: ignore
+    )
 
 
 @app.get(
@@ -129,7 +129,7 @@ async def login(login_info: LoginInfo) -> Response:
     },
 )
 async def get_userinfo(
-    credentials: HTTPAuthorizationCredentials = Security(HTTPBearer()),
+    credentials: Annotated[HTTPAuthorizationCredentials, Security(HTTPBearer())],
 ) -> UserInfo:
     """The UserInfo endpoint of the test OP."""
     token = credentials.credentials
