@@ -179,7 +179,9 @@ class OidcProvider:
             "aud": [self.client_id],
         }
         token = sign_and_serialize_token(
-            claims, key=self.key, valid_seconds=valid_seconds  # pyright: ignore
+            claims,
+            key=self.key,
+            valid_seconds=valid_seconds,  # pyright: ignore
         )
         self._add_user(token, user)
         self._add_cleanup_task(token, valid_seconds)
