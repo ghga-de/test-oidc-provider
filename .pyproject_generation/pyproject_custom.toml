@@ -4,7 +4,7 @@ version = "1.1.0"
 description = "Test OpenID Connect provider"
 dependencies = [
     "typer >= 0.9.0",
-    "ghga-service-commons[api] >= 1.2.0",
+    "ghga-service-commons[api,auth] >= 1.2.0",
     "hexkit >= 1.1.0"
 ]
 
