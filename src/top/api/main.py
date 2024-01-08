@@ -58,7 +58,7 @@ async def health():
 async def get_openid_configuration() -> OidcConfiguration:
     """The OpenID discovery endpoint."""
     service_url = str(CONFIG.service_url).rstrip("/")
-    root_path = str(CONFIG.api_root_path).strip("/") + "/"
+    root_path = "/" + str(CONFIG.api_root_path).strip("/") + "/"
     root_url = service_url + root_path
     userinfo_endpoint = AnyHttpUrl(root_url + "userinfo")
     jwks_uri = AnyHttpUrl(root_url + "jwks")
