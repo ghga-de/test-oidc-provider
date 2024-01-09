@@ -2,3 +2,4 @@
 
 host: 0.0.0.0
 service_url: http://localhost:8080
+service_instance_id: "1"
