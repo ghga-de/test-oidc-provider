@@ -63,6 +63,7 @@ async def get_openid_configuration() -> OidcConfiguration:
         root_url += root_path + "/"
     userinfo_endpoint = AnyHttpUrl(root_url + "userinfo")
     jwks_uri = AnyHttpUrl(root_url + "jwks")
+    log.debug("Return openid configuration.")
     return OidcConfiguration(
         userinfo_endpoint=userinfo_endpoint,
         issuer=CONFIG.issuer,
