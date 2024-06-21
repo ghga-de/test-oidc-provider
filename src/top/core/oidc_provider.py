@@ -183,7 +183,7 @@ class OidcProvider:
         token = sign_and_serialize_token(
             claims,
             key=self.key,
-            valid_seconds=valid_seconds,
+            valid_seconds=int(valid_seconds),
         )
         self._add_user(token, user)
         self._add_cleanup_task(token, valid_seconds)
