@@ -1,4 +1,4 @@
-# Copyright 2021 - 2023 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
+# Copyright 2021 - 2024 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
 # for the German Human Genome-Phenome Archive (GHGA)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,16 @@
 # limitations under the License.
 #
 """Provides a function to get all dependencies from the lock file"""
+
 import re
 from pathlib import Path
-from typing import Optional
 
 from packaging.requirements import Requirement
 
 
 def get_lock_file_deps(
     lock_file_path: Path,
-    exclude: Optional[set[str]] = None,
+    exclude: set[str] | None = None,
 ) -> list[Requirement]:
     """Inspect the lock file to get the dependencies.
 

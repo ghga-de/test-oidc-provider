@@ -1,11 +1,11 @@
 [project]
 name = "top"
-version = "1.1.1"
+version = "1.1.2"
 description = "Test OpenID Connect provider"
 dependencies = [
-    "typer >= 0.9.0",
-    "ghga-service-commons[api,auth] >= 2.0.0",
-    "hexkit >= 2.0.0"
+    "typer >= 0.12",
+    "ghga-service-commons[api,auth] >= 3.1.5, < 4",
+    "hexkit >= 3.2.2, < 4"
 ]
 
 [project.urls]
