@@ -1,3 +1,5 @@
 #!/bin/bash
 
+PATH=/home/vscode/.local/bin:$PATH
+
 top
