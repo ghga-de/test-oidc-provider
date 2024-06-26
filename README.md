@@ -191,8 +191,6 @@ The service requires the following configuration parameters:
   ```
 
 
-- **`service_url`** *(string, format: uri)*: External base URL of this service. Default: `"https://op.test/"`.
-
 
 ### Usage:
 
