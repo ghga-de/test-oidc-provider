@@ -59,9 +59,9 @@ async def health():
 async def get_openid_configuration(request: Request) -> OidcConfiguration:
     """The OpenID discovery endpoint."""
     original_url = get_original_url(request)
-    # remove the current route to get the root URL
+    # remove the current route to get the base URL
     base_url = original_url.removesuffix(".well-known/openid-configuration")
-    # construct the other urls based on the root url
+    # construct the other URLs from the base URL
     userinfo_endpoint = AnyHttpUrl(base_url + "userinfo")
     jwks_uri = AnyHttpUrl(base_url + "jwks")
     return OidcConfiguration(
