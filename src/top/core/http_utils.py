@@ -40,7 +40,7 @@ def get_original_url(request: Request) -> str:
             or headers.get("x-envoy-original-proto")
             or request.url.scheme
         )
-        original_url = f"{original_scheme}://{original_host}/{original_path}"
+        original_url = f"{original_scheme}://{original_host}{original_path}"
     else:
         # get the URL without query param from the request
         original_url = str(request.url.replace(query=None))
