@@ -24,27 +24,24 @@ __all__ = ["get_original_url"]
 def get_original_url(request: Request) -> str:
     """Get the original URL used for the request."""
     headers = request.headers
-    print("Request headers:", headers)
     original_path = headers.get("x-forwarded-path") or headers.get(
         "x-envoy-original-path"
     )
-    print("Original Path:", original_path)
     if original_path:
-        # construct the URL from the header values
-        host = (
+        # construct the URL using header values
+        original_host = (
             headers.get("x-forwarded-host")
             or headers.get("x-envoy-original-host")
             or headers.get("host")
             or request.url.netloc
         )
-        scheme = (
+        original_scheme = (
             headers.get("x-forwarded-proto")
             or headers.get("x-envoy-original-proto")
             or request.url.scheme
         )
-        original_url = f"{scheme}://{host}"
+        original_url = f"{original_scheme}://{original_host}/{original_path}"
     else:
-        # get the URL for this endpoint sans query params
+        # get the URL without query param from the request
         original_url = str(request.url.replace(query=None))
-    print("Original URL:", original_url)
     return original_url
