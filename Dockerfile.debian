@@ -42,6 +42,7 @@ RUN rm *.whl
 RUN useradd --create-home appuser
 WORKDIR /home/appuser
 USER appuser
+# set environment
 ENV PYTHONUNBUFFERED=1
-# run application
-ENTRYPOINT ["top"]
+# Please adapt to package name:
+ENTRYPOINT ["my-microservice"]
