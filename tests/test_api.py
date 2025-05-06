@@ -17,6 +17,7 @@
 """Tests for the REST API"""
 
 from collections.abc import AsyncGenerator
+from urllib.parse import parse_qs, urlparse
 
 from fastapi import status
 from ghga_service_commons.api.testing import AsyncTestClient
@@ -142,6 +143,76 @@ async def test_login_and_get_user_info(client: AsyncTestClient):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
     response = await client.get("/userinfo", headers=headers_for_token(token))
+    assert response.status_code == status.HTTP_200_OK
+
+    user_info = response.json()
+    assert user_info == {
+        "email": "john.doe@home.org",
+        "name": "John Doe",
+        "sub": "id-of-john-doe@op.test",
+    }
+
+
+@mark.asyncio
+async def test_authorization_code_flow(client: AsyncTestClient):
+    """Test the complete authorization code flow."""
+    response = await client.post("/login", json={"name": "John Doe"})
+    assert response.status_code == status.HTTP_201_CREATED
+
+    expected_token = response.text
+
+    response = await client.get(
+        "/authorize",
+        params={
+            "response_type": "code",
+            "client_id": "test-client",
+            "redirect_uri": "https://client.test/oauth/callback",
+            "scope": "openid profile email",
+            "state": "some-state",
+        },
+    )
+    assert response.status_code == status.HTTP_302_FOUND
+    url = response.headers["Location"]
+    assert url.startswith("https://client.test/oauth/callback?")
+
+    parsed = urlparse(url)
+    params = parse_qs(parsed.query)
+    assert sorted(params) == ["code", "state"]
+    assert len(params["code"]) == 1
+    assert params["state"] == ["some-state"]
+    code = params["code"][0]
+    assert code
+    assert len(code) == 32
+
+    # Exchange the authorization code for an access token
+    response = await client.post(
+        "/token",
+        data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": "https://client.test/oauth/callback",
+            "client_id": "test-client",
+        },
+    )
+    assert response.status_code == status.HTTP_200_OK
+    token_response = response.json()
+    assert isinstance(token_response, dict)
+    assert sorted(token_response) == [
+        "access_token",
+        "expires_in",
+        "scope",
+        "token_type",
+    ]
+    access_token = token_response.pop("access_token", None)
+    assert token_response == {
+        "expires_in": 60 * 60,
+        "scope": "openid profile email",
+        "token_type": "Bearer",
+    }
+
+    assert access_token == expected_token
+
+    response = await client.get("/userinfo", headers=headers_for_token(access_token))
     assert response.status_code == status.HTTP_200_OK
 
     user_info = response.json()
