@@ -126,7 +126,7 @@ components:
           title: Service Documentation
           type: string
         token_endpoint:
-          default: http://localhost:8080/authorize
+          default: http://localhost:8080/token
           description: URL of the OP's Token Endpoint
           format: uri
           minLength: 1
