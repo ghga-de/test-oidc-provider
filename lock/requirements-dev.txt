@@ -336,9 +336,9 @@ h11==0.16.0 \
     # via
     #   httpcore
     #   uvicorn
-hexkit==4.5.0 \
-    --hash=sha256:a6aef02e1284e5acae01ba9f8b885e2e97ca85644df392e622029f99ce360ec6 \
-    --hash=sha256:e91b89f051cc3111fc4038ccb14de9215d4c1d462c889237450296fc82205d01
+hexkit==4.6.0 \
+    --hash=sha256:01fa1f389d88e93e67c13f82790a860821c5119331df7120dce0745ee677169c \
+    --hash=sha256:2d463fb1074871ad49b1ba16a2634d73b31933a0e3235a65afa83c31b855f932
     # via
     #   top (pyproject.toml)
     #   ghga-service-commons
