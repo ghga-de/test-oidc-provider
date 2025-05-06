@@ -119,6 +119,7 @@ async def login(login_info: LoginInfo) -> Response:
         log.info("Invalid login info: %s", error)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(error),
         ) from error
     log.debug("Created login token: %s", token)
     return Response(
@@ -158,8 +159,10 @@ async def authorize(
             state=state,
         )
     except ValueError as error:
+        log.error("Error in authorization: %s", error)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error),
         ) from error
     # Redirect back with code and state or error message
     return RedirectResponse(url=url, status_code=status.HTTP_302_FOUND)
@@ -196,8 +199,10 @@ async def token(
             client_id=client_id,
         )
     except ValueError as error:
+        log.warning("Error when getting token: %s", error)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error),
         ) from error
 
 
@@ -229,4 +234,5 @@ async def get_userinfo(
         log.info("User not found in cache.")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(error),
         ) from error
