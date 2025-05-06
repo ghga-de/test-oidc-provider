@@ -56,7 +56,8 @@ tags: list[str | Enum] = ["TestOP"]
 )
 async def health():
     """Used to test if this service is alive"""
-    return {"status": "OK"}
+    num_users = len(oidc_provider.users)
+    return {"status": "OK", "num_users": num_users}
 
 
 @app.get(
@@ -125,6 +126,24 @@ async def login(login_info: LoginInfo) -> Response:
     return Response(
         content=token, media_type="application/jwt", status_code=status.HTTP_201_CREATED
     )
+
+
+@app.post(
+    "/reset",
+    summary="Reset the test OP",
+    tags=tags,
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_204_NO_CONTENT: {
+            "description": "Test OP was successfully reset.",
+        },
+    },
+)
+async def reset() -> Response:
+    """Endpoint for resetting the test OP."""
+    await oidc_provider.reset()
+    log.info("The test OP has been reset.")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get(
