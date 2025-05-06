@@ -89,7 +89,7 @@ class OidcConfiguration(BaseModel):
         description="URL of the OP's Authorization Endpoint",
     )
     token_endpoint: AnyHttpUrl = Field(
-        default=AnyHttpUrl("http://localhost:8080/authorize"),
+        default=AnyHttpUrl("http://localhost:8080/token"),
         description="URL of the OP's Token Endpoint",
     )
     userinfo_endpoint: AnyHttpUrl = Field(
