@@ -1,4 +1,4 @@
-# Copyright 2021 - 2024 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
+# Copyright 2021 - 2025Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
 # for the German Human Genome-Phenome Archive (GHGA)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -198,15 +198,13 @@ async def test_validate_default_tokens():
     claims = provider.decode_and_validate_token(token)
     assert isinstance(claims, dict)
     keys = " ".join(sorted(claims))
-    assert keys == "aud client_id exp iat iss jti scope sid sub token_class"
+    assert keys == "aud client_id exp iat iss jti scope sub"
     assert claims["client_id"] == "test-client"
     assert claims["aud"] == [claims["client_id"]]
     assert claims["iss"] == "https://op.test"
     assert claims["jti"] == "test-1"
-    assert claims["sid"] == claims["jti"]
     assert claims["scope"] == "openid profile email"
     assert claims["sub"] == "id-of-john-doe@op.test"
-    assert claims["token_class"] == "access_token"
     iat = claims["iat"]
     assert isinstance(iat, int)
     exp = claims["exp"]
@@ -225,15 +223,13 @@ async def test_validate_default_tokens():
     claims = provider.decode_and_validate_token(token)
     assert isinstance(claims, dict)
     keys = " ".join(sorted(claims))
-    assert keys == "aud client_id exp iat iss jti scope sid sub token_class"
+    assert keys == "aud client_id exp iat iss jti scope sub"
     assert claims["client_id"] == "test-client"
     assert claims["aud"] == [claims["client_id"]]
     assert claims["iss"] == "https://op.test"
     assert claims["jti"] == "test-2"
-    assert claims["sid"] == claims["jti"]
     assert claims["scope"] == "openid profile email"
     assert claims["sub"] == "sub-of-jane"
-    assert claims["token_class"] == "access_token"
     iat = claims["iat"]
     assert isinstance(iat, int)
     exp = claims["exp"]

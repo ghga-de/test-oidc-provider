@@ -1,4 +1,4 @@
-# Copyright 2021 - 2024 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
+# Copyright 2021 - 2025Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
 # for the German Human Genome-Phenome Archive (GHGA)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,6 +78,8 @@ async def test_openid_configuration(origin_header: str | None, client: AsyncTest
         "claims_supported": ["sub", "name", "email"],
         "request_object_signing_alg_values_supported": ["ES512"],
         "userinfo_signing_alg_values_supported": ["ES512"],
+        "authorization_endpoint": f"{base_url}/authorize",
+        "token_endpoint": f"{base_url}/token",
         "userinfo_endpoint": f"{base_url}/userinfo",
         "service_documentation": "https://github.com/ghga-de/test-oidc-provider",
     }
@@ -133,9 +135,7 @@ async def test_login_and_get_user_info(client: AsyncTestClient):
         "iss": "https://op.test",
         "jti": "test-1",
         "scope": "openid profile email",
-        "sid": "test-1",
         "sub": "id-of-john-doe@op.test",
-        "token_class": "access_token",
     }
 
     response = await client.get("/userinfo")

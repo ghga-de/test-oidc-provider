@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2021 - 2024 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
+# Copyright 2021 - 2025 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
 # for the German Human Genome-Phenome Archive (GHGA)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,9 +54,9 @@ def get_config_class():
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
     ) as process:
-        assert (
-            process.wait() == 0 and process.stdout is not None
-        ), "Failed to get package name."
+        assert process.wait() == 0 and process.stdout is not None, (
+            "Failed to get package name."
+        )
         package_name = process.stdout.read().decode("utf-8").strip("\n")
 
     # import the Config class from the microservice package:
