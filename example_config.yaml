@@ -8,6 +8,7 @@ cors_allowed_methods:
 - POST
 cors_allowed_origins:
 - https://client.test
+cors_exposed_headers: null
 docs_url: /docs
 generate_correlation_id: true
 host: 0.0.0.0

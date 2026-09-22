@@ -3,6 +3,18 @@
 
 # $title
 
+> [!IMPORTANT]
+> **This repository is archived and no longer maintained.**
+>
+> Development of the test OIDC provider continues in the GHGA mono repository at
+> [ghga-de/ghga](https://github.com/ghga-de/ghga), where the service now lives under
+> [`services/test-oidc-provider`](https://github.com/ghga-de/ghga/tree/main/services/test-oidc-provider).
+> Please open issues and pull requests there.
+>
+> This repository is kept read-only for its history. Version 2.2.0 (May 2025) was the
+> last release made here; everything after that has been developed in the mono repository.
+> The documentation below describes the state of the code as of that version.
+
 $summary
 
 ## Description
@@ -13,7 +25,7 @@ $description
 
 We recommend using the provided Docker container.
 
-A pre-built version is available at [docker hub](https://hub.docker.com/repository/docker/ghga/$name):
+A pre-built version is available on [Docker Hub](https://hub.docker.com/repository/docker/ghga/$name):
 ```bash
 docker pull ghga/$name:$version
 ```
@@ -24,11 +36,11 @@ Or you can build the container yourself from the [`./Dockerfile`](./Dockerfile):
 docker build -t ghga/$name:$version .
 ```
 
-For production-ready deployment, we recommend using Kubernetes, however,
-for simple use cases, you could execute the service using docker
+For production-ready deployment, we recommend using Kubernetes.
+However for simple use cases, you could execute the service using docker
 on a single server:
 ```bash
-# The entrypoint is preconfigured:
+# The entrypoint is pre-configured:
 docker run -p 8080:8080 ghga/$name:$version --help
 ```
 
@@ -50,18 +62,18 @@ $config_description
 
 ### Usage:
 
-A template YAML for configuring the service can be found at
-[`./example-config.yaml`](./example-config.yaml).
+A template YAML file for configuring the service can be found at
+[`./example_config.yaml`](./example_config.yaml).
 Please adapt it, rename it to `.$shortname.yaml`, and place it in one of the following locations:
 - in the current working directory where you execute the service (on Linux: `./.$shortname.yaml`)
 - in your home directory (on Linux: `~/.$shortname.yaml`)
 
-The config yaml will be automatically parsed by the service.
+The config YAML file will be automatically parsed by the service.
 
 **Important: If you are using containers, the locations refer to paths within the container.**
 
-All parameters mentioned in the [`./example-config.yaml`](./example-config.yaml)
-could also be set using environment variables or file secrets.
+All parameters mentioned in the [`./example_config.yaml`](./example_config.yaml)
+can also be set using environment variables or file secrets.
 
 For naming the environment variables, just prefix the parameter name with `${shortname}_`,
 e.g. for the `host` set an environment variable named `${shortname}_host`
@@ -95,12 +107,12 @@ This will give you a full-fledged, pre-configured development environment includ
 - a pre-configured debugger
 - automatic license-header insertion
 
-Moreover, inside the devcontainer, a command `dev_install` is available for convenience.
+Inside the devcontainer, a command `dev_install` is available for convenience.
 It installs the service with all development dependencies, and it installs pre-commit.
 
 The installation is performed automatically when you build the devcontainer. However,
 if you update dependencies in the [`./pyproject.toml`](./pyproject.toml) or the
-[`./requirements-dev.txt`](./requirements-dev.txt), please run it again.
+[`lock/requirements-dev.txt`](./lock/requirements-dev.txt), run it again.
 
 ## License
 
@@ -109,5 +121,5 @@ This repository is free to use and modify according to the
 
 ## README Generation
 
-This README file is auto-generated, please see [`readme_generation.md`](./readme_generation.md)
+This README file is auto-generated, please see [.readme_generation/README.md](./.readme_generation/README.md)
 for details.

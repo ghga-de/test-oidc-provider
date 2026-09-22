@@ -1,4 +1,4 @@
-# Copyright 2021 - 2025 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
+# Copyright 2021 - 2026 Universität Tübingen, DKFZ, EMBL, and Universität zu Köln
 # for the German Human Genome-Phenome Archive (GHGA)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ from top.api.main import app, oidc_provider
 
 
 @async_fixture(name="client")
-async def fixture_client() -> AsyncGenerator[AsyncTestClient, None]:
+async def fixture_client() -> AsyncGenerator[AsyncTestClient]:
     """Get test client for this application."""
     async with AsyncTestClient(app=app) as client:
         yield client
