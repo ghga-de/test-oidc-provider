@@ -3,6 +3,18 @@
 
 # Test Oidc Provider
 
+> [!IMPORTANT]
+> **This repository is archived and no longer maintained.**
+>
+> Development of the test OIDC provider continues in the GHGA mono repository at
+> [ghga-de/ghga](https://github.com/ghga-de/ghga), where the service now lives under
+> [`services/test-oidc-provider`](https://github.com/ghga-de/ghga/tree/main/services/test-oidc-provider).
+> Please open issues and pull requests there.
+>
+> This repository is kept read-only for its history. Version 2.2.0 (May 2025) was the
+> last release made here; everything after that has been developed in the mono repository.
+> The documentation below describes the state of the code as of that version.
+
 Test OpenID Connect provider
 
 ## Description
